@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NodeMCU RC Car Control</title>
+  <style>
+    body { text-align: center; font-family: Arial, sans-serif; background: #f0f0f0; }
+    h1 { margin-top: 40px; }
+    button {
+      width: 120px; height: 50px; margin: 10px;
+      font-size: 1.2em; border-radius: 8px; border: none;
+      background: #007bff; color: #fff; cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:active { background: #0056b3; }
+    .controls { margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <h1>🚗 NodeMCU RC Car Direction Control</h1>
+  <div style="display:flex;flex-direction:column;align-items:center;margin-top:40px;">
+    <button id="btnF" style="width:120px;height:50px;font-size:1.2em;margin:10px;">Forward</button>
+    <div>
+      <button id="btnL" style="width:120px;height:50px;font-size:1.2em;margin:10px;">Left</button>
+      <button id="btnR" style="width:120px;height:50px;font-size:1.2em;margin:10px;">Right</button>
+    </div>
+    <button id="btnB" style="width:120px;height:50px;font-size:1.2em;margin:10px;">Backward</button>
+    <button id="btnS" style="width:120px;height:50px;font-size:1.2em;margin:10px;">Stop</button>
+  </div>
+  <p id="status" style="font-size:1.2em;color:#333;"></p>
+  <script>
+    // Change this IP if your NodeMCU uses a different address
+    const carIP = "192.168.31.231";
+    const status = document.getElementById('status');
+    let lastCmd = '';
+
+    function sendCmd(cmd) {
+      fetch(`http://${carIP}/${cmd}`)
+        .then(() => {})
+        .catch(() => { status.textContent = "Failed to send command!"; });
+      status.textContent = cmdName(cmd);
+    }
+
+    function cmdName(cmd) {
+      switch(cmd) {
+        case 'F': return 'Forward';
+        case 'B': return 'Backward';
+        case 'L': return 'Left';
+        case 'R': return 'Right';
+        case 'S': return 'Stop';
+        default: return '';
+      }
+    }
+
+    function addHoldAction(btnId, cmd) {
+      const btn = document.getElementById(btnId);
+      btn.addEventListener('mousedown', () => sendCmd(cmd));
+      btn.addEventListener('touchstart', () => sendCmd(cmd));
+      btn.addEventListener('mouseup', () => sendCmd('S'));
+      btn.addEventListener('mouseleave', () => sendCmd('S'));
+      btn.addEventListener('touchend', () => sendCmd('S'));
+    }
+
+    addHoldAction('btnF', 'F');
+    addHoldAction('btnB', 'B');
+    addHoldAction('btnL', 'L');
+    addHoldAction('btnR', 'R');
+    addHoldAction('btnS', 'S');
+  </script>
+</body>
+</html>
